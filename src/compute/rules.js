@@ -1,59 +1,59 @@
 const AIR = 0;
-const CROAD = 1;
-const VROAD = 2;
-const HROAD = 3;
-const NROAD = 4;
-const EROAD = 5;
-const SROAD = 6;
-const WROAD = 7;
+const CROSS = 1;
+const VLINE = 2;
+const HLINE = 3;
+const NCAP = 4;
+const ECAP = 5;
+const SCAP = 6;
+const WCAP = 7;
 
 export default {
   [AIR]: [
-    [AIR, HROAD, SROAD, EROAD, WROAD],
-    [AIR, VROAD, WROAD, NROAD, SROAD],
-    [AIR, HROAD, NROAD, EROAD, WROAD],
-    [AIR, VROAD, EROAD, NROAD, SROAD],
+    [AIR, HLINE, SCAP, ECAP, WCAP],
+    [AIR, VLINE, WCAP, NCAP, SCAP],
+    [AIR, HLINE, NCAP, ECAP, WCAP],
+    [AIR, VLINE, ECAP, NCAP, SCAP],
   ],
-  [CROAD]: [
-    [CROAD, VROAD, NROAD],
-    [CROAD, HROAD, EROAD],
-    [CROAD, VROAD, SROAD],
-    [CROAD, HROAD, WROAD],
+  [CROSS]: [
+    [CROSS, VLINE, NCAP],
+    [CROSS, HLINE, ECAP],
+    [CROSS, VLINE, SCAP],
+    [CROSS, HLINE, WCAP],
   ],
-  [VROAD]: [
-    [CROAD, VROAD, NROAD],
-    [AIR, WROAD],
-    [CROAD, VROAD, SROAD],
-    [AIR, EROAD],
+  [VLINE]: [
+    [CROSS, VLINE, NCAP],
+    [AIR, WCAP],
+    [CROSS, VLINE, SCAP],
+    [AIR, ECAP],
   ],
-  [HROAD]: [
-    [AIR, SROAD],
-    [CROAD, HROAD, EROAD],
-    [AIR, NROAD],
-    [CROAD, HROAD, WROAD],
+  [HLINE]: [
+    [AIR, SCAP],
+    [CROSS, HLINE, ECAP],
+    [AIR, NCAP],
+    [CROSS, HLINE, WCAP],
   ],
-  [NROAD]: [
-    [AIR, HROAD, EROAD, WROAD, SROAD],
-    [AIR, WROAD, SROAD],
-    [CROAD, VROAD],
-    [AIR, EROAD, SROAD],
+  [NCAP]: [
+    [AIR, HLINE, ECAP, WCAP, SCAP],
+    [AIR, WCAP, SCAP],
+    [CROSS, VLINE],
+    [AIR, ECAP, SCAP],
   ],
-  [EROAD]: [
-    [AIR, SROAD, WROAD],
-    [AIR, VROAD, NROAD, SROAD],
-    [AIR, NROAD, WROAD],
-    [CROAD, HROAD],
+  [ECAP]: [
+    [AIR, SCAP, WCAP],
+    [AIR, VLINE, NCAP, SCAP],
+    [AIR, NCAP, WCAP],
+    [CROSS, HLINE],
   ],
-  [SROAD]: [
-    [CROAD, VROAD],
-    [AIR, WROAD, NROAD],
-    [AIR, HROAD, EROAD, WROAD],
-    [AIR, EROAD, NROAD],
+  [SCAP]: [
+    [CROSS, VLINE],
+    [AIR, WCAP, NCAP],
+    [AIR, HLINE, ECAP, WCAP],
+    [AIR, ECAP, NCAP],
   ],
-  [WROAD]: [
-    [AIR, SROAD, EROAD],
-    [CROAD, HROAD],
-    [AIR, NROAD, EROAD],
-    [AIR, VROAD, NROAD, SROAD],
+  [WCAP]: [
+    [AIR, SCAP, ECAP],
+    [CROSS, HLINE],
+    [AIR, NCAP, ECAP],
+    [AIR, VLINE, NCAP, SCAP],
   ],
 };
