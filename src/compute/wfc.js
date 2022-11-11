@@ -1,23 +1,17 @@
 import Rules from './rules.js';
 
-export default (instances, size) => {
+const all = Object.keys(Rules).map((n) => parseInt(n, 10));
+const neighbors = [
+  [0, 1],
+  [-1, 0],
+  [0, -1],
+  [1, 0],
+];
+
+export default (output, size) => {
   console.time('wfc');
-  const all = Object.keys(Rules).map((n) => parseInt(n, 10));
-  const cells = [];
-  const uncollapsed = [];
-  for (let i = 0, y = 0; y < size[1]; y++) {
-    for (let x = 0; x < size[0]; x++, i++) {
-      uncollapsed.push(i);
-      cells.push([...all]);
-    }
-  }
+  const cells = Array.from({ length: size[0] * size[1] }, () => [...all]);
   const rollback = new Map();
-  const neighbors = [
-    [0, 1],
-    [-1, 0],
-    [0, -1],
-    [1, 0],
-  ];
   const propagate = (cell) => {
     const cx = Math.floor(cell % size[0]);
     const cy = Math.floor(cell / size[0]);
@@ -48,7 +42,7 @@ export default (instances, size) => {
           needsPropagation = true;
         }
       }
-      if (!cells[neighbor].length) {
+      if (options.length === 0) {
         throw new Error('FAIL');
       }
       if (needsPropagation) {
@@ -56,6 +50,7 @@ export default (instances, size) => {
       }
     });
   };
+  const uncollapsed = Array.from({ length: cells.length }, (v, i) => i);
   while (uncollapsed.length) {
     const cell = uncollapsed.splice(Math.floor(Math.random() * uncollapsed.length), 1)[0];
     const options = cells[cell];
@@ -78,9 +73,7 @@ export default (instances, size) => {
     }
   }
   console.timeEnd('wfc');
-  for (let i = 0, y = 0; y < size[1]; y++) {
-    for (let x = 0; x < size[0]; x++, i++) {
-      instances[i] = cells[i][0];
-    }
-  }
+  cells.forEach(([value], i) => {
+    output[i] = value;
+  });
 };
