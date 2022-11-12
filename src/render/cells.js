@@ -1,6 +1,10 @@
 import Atlas from './atlas.js';
 
-const Vertex = ({ stride }) => `
+const Shader = ({ stride }) => `
+@group(0) @binding(0) var<uniform> camera : mat4x4<f32>;
+@group(0) @binding(1) var atlas : texture_2d_array<f32>;
+@group(0) @binding(2) var atlasSampler : sampler;
+
 struct VertexInput {
   @builtin(vertex_index) index : u32,
   @builtin(instance_index) instance: u32,
@@ -13,40 +17,36 @@ struct VertexOutput {
   @location(1) uv : vec2<f32>,
 }
 
-@group(0) @binding(0) var<uniform> camera : mat4x4<f32>;
-
 const quad = array<vec4<f32>, 6>(
   vec4<f32>(-0.5, -0.5, 0, 1), vec4<f32>(0.5, -0.5, 1, 1), vec4<f32>(-0.5, 0.5, 0, 0),
   vec4<f32>(-0.5, 0.5, 0, 0), vec4<f32>(0.5, -0.5, 1, 1), vec4<f32>(0.5, 0.5, 1, 0)
 );
 
 @vertex
-fn main(vertex : VertexInput) -> VertexOutput {
+fn vertex(vertex : VertexInput) -> VertexOutput {
   var out : VertexOutput;
   out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1) + quad[vertex.index].xy, 0, 1);
   out.texture = vertex.texture;
   out.uv = quad[vertex.index].zw;
   return out;
 }
-`;
 
-const Fragment = `
 struct FragmentInput {
   @location(0) @interpolate(flat) texture : u32,
   @location(1) uv : vec2<f32>,
 }
 
-@group(0) @binding(1) var atlas : texture_2d_array<f32>;
-@group(0) @binding(2) var atlasSampler : sampler;
-
 @fragment
-fn main(fragment : FragmentInput) -> @location(0) vec4<f32> {
+fn fragment(fragment : FragmentInput) -> @location(0) vec4<f32> {
   return textureSample(atlas, atlasSampler, fragment.uv, i32(fragment.texture));
 }
 `;
 
 class Cells {
   constructor({ renderer: { camera, device, format }, size, setup }) {
+    const module = device.createShaderModule({
+      code: Shader({ stride: size[0] }),
+    });
     this.pipeline = device.createRenderPipeline({
       layout: 'auto',
       vertex: {
@@ -63,16 +63,12 @@ class Cells {
             ],
           },
         ],
-        entryPoint: 'main',
-        module: device.createShaderModule({
-          code: Vertex({ stride: size[0] }),
-        }),
+        entryPoint: 'vertex',
+        module,
       },
       fragment: {
-        entryPoint: 'main',
-        module: device.createShaderModule({
-          code: Fragment,
-        }),
+        entryPoint: 'fragment',
+        module,
         targets: [{ format }],
       },
       primitive: {
