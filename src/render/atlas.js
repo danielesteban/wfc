@@ -1,7 +1,7 @@
 import Texture from './atlas.png';
 
 export default (device) => {
-  const count = 8;
+  const count = 12;
   const width = 16;
   const height = 16;
 

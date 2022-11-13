@@ -15,16 +15,14 @@ const opposite = [
 ];
 
 export default () => {
-  const ui = document.getElementById('renderer');
-  
   const canvas = document.createElement('canvas');
+  document.getElementById('renderer').appendChild(canvas);
   const ctx = canvas.getContext('2d');
   canvas.width = 512;
   canvas.height = 512;
   ctx.imageSmoothingEnabled = false;
   ctx.translate(256, 256);
   ctx.scale(8, 8);
-  ui.appendChild(canvas);
 
   const atlas = new Image();
   atlas.crossOrigin = 'anonymous';
