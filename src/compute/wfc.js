@@ -1,6 +1,6 @@
 import Rules from './rules.js';
 
-const all = Object.keys(Rules).map((n) => parseInt(n, 10));
+const all = Array.from({ length: Rules.length }, (v, i) => i);
 const neighbors = [
   [0, 1],
   [-1, 0],
@@ -10,7 +10,7 @@ const neighbors = [
 
 export default (output, size) => {
   console.time('wfc');
-  const cells = Array.from({ length: size[0] * size[1] }, () => [...all]);
+  const cells = Array.from({ length: size[0] * size[1] }, () => all.slice());
   const rollback = new Map();
   const propagate = (cell) => {
     const cx = Math.floor(cell % size[0]);
