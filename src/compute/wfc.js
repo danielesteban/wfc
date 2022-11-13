@@ -26,9 +26,6 @@ export default (output, size) => {
       }
       const neighbor = ny * size[0] + nx;
       const options = cells[neighbor];
-      if (options.length === 1) {
-        return;
-      }
       let needsPropagation = false;
       for (let i = 0, l = options.length; i < l; i++) {
         const option = options[i];
