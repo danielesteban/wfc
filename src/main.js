@@ -3,6 +3,7 @@ import Camera from './render/camera.js';
 import Cells from './render/cells.js';
 import Renderer from './render/renderer.js';
 import WFC from './compute/wfc.js';
+// import EditRules from './compute/editor.js';
 
 const Main = ({ adapter, device }) => {
   const camera = new Camera({ device });
@@ -49,6 +50,7 @@ const GPU = async () => {
 };
 
 GPU()
+  // .then(EditRules)
   .then(Main)
   .catch((e) => {
     console.error(e);
