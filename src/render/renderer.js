@@ -1,5 +1,5 @@
 class Renderer {
-  constructor({ adapter, camera, device }) {
+  constructor({ adapter, camera, device, pixelRatio = (window.devicePixelRatio || 1) }) {
     this.camera = camera;
     this.device = device;
     this.format = navigator.gpu.getPreferredCanvasFormat(adapter);
@@ -7,8 +7,8 @@ class Renderer {
     {
       // I have no idea why but if I don't do this, sometimes it crashes with:
       // D3D12 reset command allocator failed with E_FAIL
-      this.canvas.width = Math.floor(window.innerWidth * (window.devicePixelRatio || 1));
-      this.canvas.height = Math.floor(window.innerHeight * (window.devicePixelRatio || 1));
+      this.canvas.width = Math.floor(window.innerWidth * pixelRatio);
+      this.canvas.height = Math.floor(window.innerHeight * pixelRatio);
     }
     this.context = this.canvas.getContext('webgpu');
     this.context.configure({ alphaMode: 'opaque', device, format: this.format });
@@ -21,6 +21,7 @@ class Renderer {
         },
       ],
     };
+    this.pixelRatio = pixelRatio;
     this.scene = [];
     this.textures = new Map();
   }
@@ -34,8 +35,7 @@ class Renderer {
   }
 
   setSize(width, height) {
-    const { camera, canvas } = this;
-    const pixelRatio = window.devicePixelRatio || 1;
+    const { camera, canvas, pixelRatio } = this;
     canvas.width = Math.floor(width * pixelRatio);
     canvas.height = Math.floor(height * pixelRatio);
     canvas.style.width = `${width}px`;

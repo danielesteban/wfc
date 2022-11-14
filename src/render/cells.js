@@ -4,6 +4,7 @@ const Shader = ({ stride }) => `
 @group(0) @binding(0) var<uniform> camera : mat4x4<f32>;
 @group(0) @binding(1) var atlas : texture_2d_array<f32>;
 @group(0) @binding(2) var atlasSampler : sampler;
+@group(1) @binding(0) var<uniform> chunk : vec2<f32>;
 
 struct VertexInput {
   @builtin(vertex_index) index : u32,
@@ -25,7 +26,7 @@ const quad = array<vec4<f32>, 6>(
 @vertex
 fn vertex(vertex : VertexInput) -> VertexOutput {
   var out : VertexOutput;
-  out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1 - 1) + quad[vertex.index].xy, 0, 1);
+  out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1 - 1) + chunk + quad[vertex.index].xy, 0, 1);
   out.texture = vertex.texture;
   out.uv = quad[vertex.index].zw;
   return out;
@@ -43,7 +44,10 @@ fn fragment(fragment : FragmentInput) -> @location(0) vec4<f32> {
 `;
 
 class Cells {
-  constructor({ renderer: { camera, device, format }, size, setup }) {
+  constructor({ renderer: { camera, device, format }, chunks, size }) {
+    this.chunks = chunks;
+    this.count = size[0] * size[1];
+    this.device = device;
     const module = device.createShaderModule({
       code: Shader({ stride: size[0] }),
     });
@@ -95,22 +99,28 @@ class Cells {
         },
       ],
     });
-    this.count = size[0] * size[1];
-    this.instances = device.createBuffer({
-      mappedAtCreation: true,
-      size: this.count * Uint32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE | GPUBufferUsage.VERTEX,
-    });
-    setup(new Uint32Array(this.instances.getMappedRange()), size);
-    this.instances.unmap();
   }
 
   render(pass) {
-    const { bindings, count, instances, pipeline } = this;
+    const { bindings, chunks, count, device, pipeline } = this;
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bindings);
-    pass.setVertexBuffer(0, instances);
-    pass.draw(6, count);
+    chunks.forEach((chunk) => {
+      if (!chunk.bindings) {
+        chunk.bindings = device.createBindGroup({
+          layout: pipeline.getBindGroupLayout(1),
+          entries: [
+            {
+              binding: 0,
+              resource: { buffer: chunk.position },
+            },
+          ],
+        });
+      }
+      pass.setBindGroup(1, chunk.bindings);
+      pass.setVertexBuffer(0, chunk.cells);
+      pass.draw(6, count);
+    });
   }
 }
 

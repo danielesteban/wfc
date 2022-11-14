@@ -22,11 +22,13 @@ class Input {
     window.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     window.addEventListener('mouseup', this.onMouseUp.bind(this), false);
     window.addEventListener('wheel', this.onMouseWheel.bind(this), false);
+    Input.setCursor('grab');
   }
 
   onBlur() {
     const { buttons } = this;
     buttons.primary = buttons.secondary = buttons.zoomin = buttons.zoomout = false;
+    Input.setCursor('grab');
   }
 
   onMouseDown({ button }) {
@@ -68,12 +70,17 @@ class Input {
     buttons.zoomout = deltaY > 0;
   }
 
+  static setCursor(cursor) {
+    document.body.style.cursor = cursor;
+  }
+
   update() {
     const { buttons, camera, cursor, panning, pointer } = this;
    
     if (panning.enabled) {
       if (!buttons.primary) {
         panning.enabled = false;
+        Input.setCursor('grab');
         return;
       }
       vec2.copy(cursor, pointer);
@@ -81,11 +88,12 @@ class Input {
       vec2.sub(camera.position, panning.initial, cursor);
       vec2.add(camera.position, camera.position, panning.origin);
       camera.update();
-      return;
+      return true;
     }
 
     if (buttons.primary) {
       panning.enabled = true;
+      Input.setCursor('grabbing');
       vec2.copy(panning.origin, camera.position);
       mat4.copy(panning.matrix, camera.matrixInverse);
       vec2.copy(panning.initial, pointer);
@@ -111,6 +119,7 @@ class Input {
 
       vec2.sub(camera.position, camera.position, cursor);
       camera.update();
+      return true;
     }
   }
 }
