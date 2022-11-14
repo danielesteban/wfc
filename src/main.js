@@ -29,12 +29,15 @@ const Main = ({ adapter, device }) => {
 
   const input = new Input({ camera, target: renderer.canvas });
 
+  const time = new Float32Array(1);
   const animate = () => {
     requestAnimationFrame(animate);
     if (input.update()) {
       updateViewport();
     }
 
+    time[0] = performance.now() / 1000;
+    device.queue.writeBuffer(renderer.time, 0, time);
     const command = device.createCommandEncoder();
     renderer.render(command);
     device.queue.submit([command.finish()]);

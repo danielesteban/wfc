@@ -23,7 +23,10 @@ class Renderer {
     };
     this.pixelRatio = pixelRatio;
     this.scene = [];
-    this.textures = new Map();
+    this.time = device.createBuffer({
+      size: Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+    });
   }
 
   render(command) {

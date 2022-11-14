@@ -5,7 +5,7 @@ class Camera {
     this.aspect = 1;
     this.near = -100;
     this.far = 100;
-    this.zoom = 100;
+    this.zoom = 90;
     this.position = vec2.create();
 
     this.matrix = mat4.create();

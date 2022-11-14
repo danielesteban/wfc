@@ -2,8 +2,9 @@ import Atlas from './atlas.js';
 
 const Shader = ({ stride }) => `
 @group(0) @binding(0) var<uniform> camera : mat4x4<f32>;
-@group(0) @binding(1) var atlas : texture_2d_array<f32>;
-@group(0) @binding(2) var atlasSampler : sampler;
+@group(0) @binding(1) var<uniform> time : f32;
+@group(0) @binding(2) var atlas : texture_2d_array<f32>;
+@group(0) @binding(3) var atlasSampler : sampler;
 @group(1) @binding(0) var<uniform> chunk : vec2<f32>;
 
 struct VertexInput {
@@ -19,16 +20,17 @@ struct VertexOutput {
 }
 
 const quad = array<vec4<f32>, 6>(
-  vec4<f32>(0, 0, 0, 1), vec4<f32>(1, 0, 1, 1), vec4<f32>(0, 1, 0, 0),
-  vec4<f32>(0, 1, 0, 0), vec4<f32>(1, 0, 1, 1), vec4<f32>(1, 1, 1, 0)
+  vec4<f32>(0, 0, -0.5, 0.5), vec4<f32>(1, 0, 0.5, 0.5), vec4<f32>(0, 1, -0.5, -0.5),
+  vec4<f32>(0, 1, -0.5, -0.5), vec4<f32>(1, 0, 0.5, 0.5), vec4<f32>(1, 1, 0.5, -0.5)
 );
 
 @vertex
 fn vertex(vertex : VertexInput) -> VertexOutput {
   var out : VertexOutput;
-  out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1 - 1) + chunk + quad[vertex.index].xy, 0, 1);
+  var position : vec2<f32> = vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1 - 1) + chunk + quad[vertex.index].xy;
+  out.position = camera * vec4<f32>(position, 0, 1);
   out.texture = vertex.texture;
-  out.uv = quad[vertex.index].zw;
+  out.uv = 0.5 + quad[vertex.index].zw * (1.1 - (sin((time + (position.x + position.y) * 0.5) * 3) * 0.15));
   return out;
 }
 
@@ -44,7 +46,7 @@ fn fragment(fragment : FragmentInput) -> @location(0) vec4<f32> {
 `;
 
 class Cells {
-  constructor({ renderer: { camera, device, format }, chunks, size }) {
+  constructor({ renderer: { camera, device, format, time }, chunks, size }) {
     this.chunks = chunks;
     this.count = size[0] * size[1];
     this.device = device;
@@ -88,10 +90,14 @@ class Cells {
         },
         {
           binding: 1,
-          resource: Atlas(device),
+          resource: { buffer: time },
         },
         {
           binding: 2,
+          resource: Atlas(device),
+        },
+        {
+          binding: 3,
           resource: device.createSampler({
             magFilter: 'linear',
             minFilter: 'linear',
