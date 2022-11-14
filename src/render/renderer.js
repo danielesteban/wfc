@@ -41,6 +41,7 @@ class Renderer {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     camera.aspect = width / height;
+    camera.update();
   }
 }
 

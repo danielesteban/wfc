@@ -1,6 +1,7 @@
 import './main.css';
 import Camera from './render/camera.js';
 import Cells from './render/cells.js';
+import Input from './compute/input.js';
 import Renderer from './render/renderer.js';
 import WFC from './compute/wfc.js';
 // import EditRules from './compute/editor.js';
@@ -14,21 +15,21 @@ const Main = ({ adapter, device }) => {
     renderer.setSize(window.innerWidth, window.innerHeight)
   ), false);
 
-  const size = new Uint32Array([300, 160]);
+  const size = new Uint32Array([320, 180]);
   const cells = new Cells({ renderer, size, setup: WFC });
   renderer.scene.push(cells);
 
+  camera.position[0] = size[0] * 0.5;
+  camera.position[1] = size[1] * -0.5;
+  camera.zoom = 90;
+  camera.update();
+
+  const input = new Input({ camera, target: renderer.canvas });
+
   const animate = () => {
     requestAnimationFrame(animate);
-
-    const time = performance.now() / 1000;
-    const d = size[1] * 0.3;
-    const t = time * 0.2;
-    camera.position[0] = size[0] * 0.5 + Math.sin(t) * d;
-    camera.position[1] = size[1] * -0.5 - Math.cos(t) * d;
-    camera.zoom = 60 + Math.sin(t) * 20;
-    camera.update();
-
+    input.update();
+  
     const command = device.createCommandEncoder();
     renderer.render(command);
     device.queue.submit([command.finish()]);

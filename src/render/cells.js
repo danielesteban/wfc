@@ -18,14 +18,14 @@ struct VertexOutput {
 }
 
 const quad = array<vec4<f32>, 6>(
-  vec4<f32>(-0.5, -0.5, 0, 1), vec4<f32>(0.5, -0.5, 1, 1), vec4<f32>(-0.5, 0.5, 0, 0),
-  vec4<f32>(-0.5, 0.5, 0, 0), vec4<f32>(0.5, -0.5, 1, 1), vec4<f32>(0.5, 0.5, 1, 0)
+  vec4<f32>(0, 0, 0, 1), vec4<f32>(1, 0, 1, 1), vec4<f32>(0, 1, 0, 0),
+  vec4<f32>(0, 1, 0, 0), vec4<f32>(1, 0, 1, 1), vec4<f32>(1, 1, 1, 0)
 );
 
 @vertex
 fn vertex(vertex : VertexInput) -> VertexOutput {
   var out : VertexOutput;
-  out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1) + quad[vertex.index].xy, 0, 1);
+  out.position = camera * vec4<f32>(vec2<f32>(f32(vertex.instance % ${stride}), f32(vertex.instance / ${stride}) * -1 - 1) + quad[vertex.index].xy, 0, 1);
   out.texture = vertex.texture;
   out.uv = quad[vertex.index].zw;
   return out;
